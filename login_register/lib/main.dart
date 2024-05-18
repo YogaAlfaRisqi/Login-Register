@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:login_register/firebase_options.dart';
+import 'package:login_register/providers/auth_provider.dart';
+
 import 'package:login_register/views/splash_screen.dart';
 import 'package:provider/provider.dart';
-import 'providers/auth_provider.dart';
+// import 'providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding

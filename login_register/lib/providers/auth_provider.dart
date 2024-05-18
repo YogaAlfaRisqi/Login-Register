@@ -4,133 +4,104 @@ import 'package:flutter/material.dart';
 enum StateLogin { initial, success, error }
 
 class AuthProvider with ChangeNotifier {
-  bool? isChecked = true;
-  bool? isUsernameValid = true;
-  bool? isPasswordValid = true;
+  final formKeyLogin = GlobalKey<FormState>();
+  final formKeyRegister = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  final formKeyLogin = GlobalKey<FormState>();
-  final formKeyRegister = GlobalKey<FormState>();
+
   var loginState = StateLogin.initial;
-  var username = '';
+  var phone = '';
   var uid = '';
   var messageError = '';
 
-  void validation() {
-    formKey.currentState!.validate();
-    notifyListeners();
-  }
+  void processLogin(BuildContext context) async {
+    if (formKeyLogin.currentState?.validate() ?? false) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: emailController.text, password: passwordController.text);
+        loginState = StateLogin.success;
+        uid = userCredential.user?.uid ?? '';
+        notifyListeners();
+        _showSuccessDialog(context, 'Login Successful', 'Your UID: $uid');
+      } on FirebaseAuthException catch (e) {
+        loginState = StateLogin.error;
+        messageError = e.message ?? 'An unknown error occurred';
+        notifyListeners();
 
-  String? usernameValidation(String? value) {
-    if (value!.isEmpty) {
-      isUsernameValid = false;
-      return 'Invalid Username';
-    } else {
-      isUsernameValid = true;
-      return null;
-    }
-  }
+        String errorMessage;
+        if (e.code == 'user-not-found') {
+          errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Wrong password provided for that user.';
+        } else {
+          errorMessage = 'Login failed. Please try again.';
+        }
 
-  String? passwordValidation(String? value) {
-    if (value!.isEmpty) {
-      isPasswordValid = false;
-      return 'Invalid Password';
-    } else if (value.length < 8) {
-      isPasswordValid = false;
-      return 'Weak Password, Password must be at least 8 characters';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
     } else {
-      isPasswordValid = true;
-      return null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill out the form correctly.')),
+      );
     }
   }
 
   void processRegister(BuildContext context) async {
-    if (formKeyRegister.currentState!.validate()) {
+    if (formKeyRegister.currentState?.validate() ?? false) {
       try {
-        UserCredential result = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-                email: emailController.text, password: passwordController.text);
+        UserCredential result =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
         User dataUser = result.user!;
-        username = emailController.text;
+        phone = phoneController.text;
         uid = dataUser.uid;
         loginState = StateLogin.success;
-        _showSuccessDialog(context, 'Registration Successful', uid);
-      } on FirebaseAuthException catch (error) {
-        loginState = StateLogin.error;
-        messageError = error.message!;
-        showAlertError(context, messageError);
+        notifyListeners();
+        _showSuccessDialog(
+            context, 'Registration Successful', 'Your UID: $uid');
+      } on FirebaseAuthException catch (e) {
+        String errorMessage;
+        if (e.code == 'weak-password') {
+          errorMessage = 'The password provided is too weak.';
+        } else if (e.code == 'email-already-in-use') {
+          errorMessage = 'The account already exists for that email.';
+        } else {
+          errorMessage = 'Registration failed. Please try again.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
       } catch (e) {
-        loginState = StateLogin.error;
-        messageError = e.toString();
-        showAlertError(context, messageError);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An unknown error occurred.')),
+        );
       }
     } else {
-      showAlertError(context, 'Periksa kelengkapan datamu!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill out the form correctly.')),
+      );
     }
-
-    notifyListeners();
   }
 
-  void processLogin(BuildContext context) async {
-    if (formKeyLogin.currentState!.validate()) {
-      try {
-        UserCredential result = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(
-                email: emailController.text, password: passwordController.text);
-        User dataUser = result.user!;
-        username = emailController.text;
-        uid = dataUser.uid;
-        loginState = StateLogin.success;
-        _showSuccessDialog(context, 'Login Successful', uid);
-      } on FirebaseAuthException catch (error) {
-        loginState = StateLogin.error;
-        messageError = error.message!;
-        showAlertError(context, messageError);
-      } catch (e) {
-        loginState = StateLogin.error;
-        messageError = e.toString();
-        showAlertError(context, messageError);
-      }
-    } else {
-      showAlertError(context, 'Periksa kelengkapan datamu!');
-    }
-
-    notifyListeners();
-  }
-
-  void _showSuccessDialog(BuildContext context, String title, String uid) {
+  void _showSuccessDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text('UID: $uid'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void showAlertError(BuildContext context, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
-          content: Text(errorMessage),
+          title: Text(title),
+          content: Text(message),
           actions: [
-            ElevatedButton(
+            TextButton(
+              child: Text('OK'),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
               },
-              child: const Text('Ok'),
             ),
           ],
         );

@@ -13,8 +13,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isPasswordVisible = false;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  // final TextEditingController _emailController = TextEditingController();
+  // final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -24,8 +24,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    // _emailController.dispose();
+    // _passwordController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -91,64 +91,99 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
   Widget _buildRegisterPage(AuthProvider authProvider) {
     return SingleChildScrollView(
       child: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 30),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.withOpacity(0.3),
-              ),
-              child: TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.mail),
-                  hintText: 'Email',
-                  border: InputBorder.none,
+        child: Form(
+          key: authProvider.formKeyRegister,
+          child: Column(
+            children: [
+              const SizedBox(height: 30),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.withOpacity(0.3),
                 ),
-                validator: authProvider.usernameValidation,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.withOpacity(0.3),
-              ),
-              child: TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock),
-                  hintText: 'Password',
-                  border: InputBorder.none,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
+                child: TextFormField(
+                  controller: authProvider.emailController,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.mail),
+                    hintText: 'Email',
+                    border: InputBorder.none,
                   ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Tolong isi field ini';
+                    }
+                    return null;
+                  },
                 ),
-                obscureText: !_isPasswordVisible,
-                validator: authProvider.passwordValidation,
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                context.read<AuthProvider>().processRegister(context);
-              },
-              child: const Text('Register'),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.withOpacity(0.3),
+                ),
+                child: TextFormField(
+                  controller: authProvider.passwordController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.lock),
+                    hintText: 'Password',
+                    border: InputBorder.none,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: !_isPasswordVisible,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Tolong isi field ini';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.withOpacity(0.3),
+                ),
+                child: TextFormField(
+                  controller: authProvider.phoneController,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.mail),
+                    hintText: 'Phone Number',
+                    border: InputBorder.none,
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Tolong isi field ini';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  context.read<AuthProvider>().processRegister(context);
+                },
+                child: const Text('Register'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -169,13 +204,18 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                   color: Colors.grey.withOpacity(0.3),
                 ),
                 child: TextFormField(
-                  controller: _emailController,
+                  controller: authProvider.emailController,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.mail),
                     hintText: 'Email',
                     border: InputBorder.none,
                   ),
-                  validator: authProvider.usernameValidation,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Tolong isi field ini';
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(height: 20),
@@ -187,7 +227,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                   color: Colors.grey.withOpacity(0.3),
                 ),
                 child: TextFormField(
-                  controller: _passwordController,
+                  controller: authProvider.passwordController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock),
                     hintText: 'Password',
@@ -206,12 +246,20 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                     ),
                   ),
                   obscureText: !_isPasswordVisible,
-                  validator: authProvider.passwordValidation,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Tolong isi field ini';
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
+                  // if (authProvider.formKey.currentState!.validate()) {
+                  //   ;
+                  // }
                   context.read<AuthProvider>().processLogin(context);
                 },
                 child: const Text('Login'),
