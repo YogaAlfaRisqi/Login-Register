@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login_register/pages/login_register.dart';
+import 'package:login_register/views/login_register.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
 
 class HomePage extends StatefulWidget {
@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const LoginRegister()));
+                        builder: (context) => const LoginRegisterPage()));
               },
               child: Container(
                 width: 200,
