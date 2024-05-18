@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import '../controller/auth_provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginRegisterPage extends StatefulWidget {
   const LoginRegisterPage({super.key});
@@ -109,12 +111,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                     hintText: 'Email',
                     border: InputBorder.none,
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Tolong isi field ini';
-                    }
-                    return null;
-                  },
+                  validator: (value) => authProvider.validateEmail(value),
                 ),
               ),
               const SizedBox(height: 20),
@@ -163,8 +160,8 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                 child: TextFormField(
                   controller: authProvider.phoneController,
                   decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.mail),
-                    hintText: 'Phone Number',
+                    prefixIcon: Icon(Icons.phone),
+                    hintText: 'Phone',
                     border: InputBorder.none,
                   ),
                   validator: (value) {
@@ -175,12 +172,29 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
+              const SizedBox(height: 30),
+              GestureDetector(
+                onTap: () async {
                   context.read<AuthProvider>().processRegister(context);
                 },
-                child: const Text('Register'),
+                child: Container(
+                  width: 150,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.blue.withOpacity(0.7),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Register",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          fontSize: 15),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -210,12 +224,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                     hintText: 'Email',
                     border: InputBorder.none,
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Tolong isi field ini';
-                    }
-                    return null;
-                  },
+                  validator: authProvider.validateEmail,
                 ),
               ),
               const SizedBox(height: 20),
@@ -246,24 +255,34 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>
                     ),
                   ),
                   obscureText: !_isPasswordVisible,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Tolong isi field ini';
-                    }
-                    return null;
-                  },
+                  validator: authProvider.validatePassword,
+                ),
+              ),
+              const SizedBox(height: 40),
+              GestureDetector(
+                onTap: () async {
+                  context.read<AuthProvider>().processLogin(context);
+                },
+                child: Container(
+                  width: 150,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.blue.withOpacity(0.7),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          fontSize: 15),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  // if (authProvider.formKey.currentState!.validate()) {
-                  //   ;
-                  // }
-                  context.read<AuthProvider>().processLogin(context);
-                },
-                child: const Text('Login'),
-              ),
             ],
           ),
         ),
